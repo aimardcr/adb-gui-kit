@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import "@/styles/global.css";
 import { Button } from "@/components/ui/button";
+import { Toaster } from "@/components/ui/sonner";
 import { 
   LayoutDashboard, 
   Box, 
@@ -100,7 +101,7 @@ export function MainLayout() {
       <main className="flex-1 p-6 overflow-auto">
         {renderActiveView()}
       </main>
-      
+      <Toaster richColors position="bottom-right" />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Reboot } from '../../../wailsjs/go/backend/App';
 
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RotateCw, Loader2, Power, Terminal } from "lucide-react";
 
@@ -19,7 +20,9 @@ export function ViewUtilities() {
       await Reboot(mode);
     } catch (error) {
       console.error(`Error rebooting to ${modeId}:`, error);
-      alert(`Failed to send reboot command: ${error}`);
+      toast.error("Failed to send reboot command", {
+      description: String(error),
+    });
     }
     
     setLoadingMode(null);
