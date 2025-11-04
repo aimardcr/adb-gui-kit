@@ -8,7 +8,7 @@ import {
   Terminal, 
   Settings,
   ChevronLeft,
-  ChevronRight
+  ChevronRight 
 } from "lucide-react";
 import { cn } from "@/lib/utils"; 
 import {
@@ -17,6 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"; 
+import { motion, AnimatePresence } from "framer-motion";
 
 import { ViewDashboard } from './views/ViewDashboard';
 import { ViewAppManager } from './views/ViewAppManager';
@@ -33,6 +34,12 @@ const VIEWS = {
 } as const;
 
 type ViewType = typeof VIEWS[keyof typeof VIEWS];
+
+const pageVariants = {
+  hidden: { opacity: 0, y: 10 },
+  visible: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -10 },
+};
 
 export function MainLayout() { 
   const [activeView, setActiveView] = useState<ViewType>(VIEWS.DASHBOARD);
@@ -57,7 +64,7 @@ export function MainLayout() {
 
   return (
     <TooltipProvider delayDuration={0}> 
-      <div className="relative flex h-screen bg-background text-foreground">
+      <div className="relative flex h-screen bg-background text-foreground overflow-hidden">
         
         <aside 
           className={cn(
@@ -88,7 +95,7 @@ export function MainLayout() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
-                    variant={activeView === VIEWS.DASHBOARD ? "secondary" : "ghost"}
+                    variant={activeView === VIEWS.DASHBOARD ? "default" : "ghost"}
                     className={cn("justify-start text-base", isCollapsed && "justify-center")}
                     onClick={() => setActiveView(VIEWS.DASHBOARD)}
                   >
@@ -102,7 +109,7 @@ export function MainLayout() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
-                    variant={activeView === VIEWS.APPS ? "secondary" : "ghost"}
+                    variant={activeView === VIEWS.APPS ? "default" : "ghost"}
                     className={cn("justify-start text-base", isCollapsed && "justify-center")}
                     onClick={() => setActiveView(VIEWS.APPS)}
                   >
@@ -116,7 +123,7 @@ export function MainLayout() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
-                    variant={activeView === VIEWS.FILES ? "secondary" : "ghost"}
+                    variant={activeView === VIEWS.FILES ? "default" : "ghost"}
                     className={cn("justify-start text-base", isCollapsed && "justify-center")}
                     onClick={() => setActiveView(VIEWS.FILES)}
                   >
@@ -130,7 +137,7 @@ export function MainLayout() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
-                    variant={activeView === VIEWS.FLASHER ? "secondary" : "ghost"}
+                    variant={activeView === VIEWS.FLASHER ? "default" : "ghost"}
                     className={cn("justify-start text-base", isCollapsed && "justify-center")}
                     onClick={() => setActiveView(VIEWS.FLASHER)}
                   >
@@ -144,7 +151,7 @@ export function MainLayout() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button 
-                    variant={activeView === VIEWS.UTILS ? "secondary" : "ghost"}
+                    variant={activeView === VIEWS.UTILS ? "default" : "ghost"}
                     className={cn("justify-start text-base", isCollapsed && "justify-center")}
                     onClick={() => setActiveView(VIEWS.UTILS)}
                   >
@@ -155,7 +162,6 @@ export function MainLayout() {
                 <TooltipContent side="right">Utility</TooltipContent>
               </Tooltip>
             </nav>
-            
           </div>
         </aside>
 
@@ -165,8 +171,8 @@ export function MainLayout() {
               variant="outline" 
               size="icon"
               className={cn(
-                "absolute z-10 h-7 w-7 rounded-full p-0 transition-all duration-300 ease-in-out flex items-center justify-center",
-                "top-16 -translate-y-1/2",
+                "absolute z-10 h-7 w-7 rounded-full p-0 transition-all duration-300 ease-in-out",
+                "top-16 -translate-y-1/2", 
                 isCollapsed ? "left-[calc(72px-14px)]" : "left-[calc(256px-14px)]" 
               )}
               onClick={() => setIsCollapsed(!isCollapsed)}
@@ -179,9 +185,19 @@ export function MainLayout() {
           </TooltipContent>
         </Tooltip>
 
-        
-        <main className="flex-1 p-6 overflow-auto">
-          {renderActiveView()}
+                <main className="flex-1 p-6 overflow-auto">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeView}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={pageVariants}
+              transition={{ duration: 0.2 }}
+            >
+              {renderActiveView()}
+            </motion.div>
+          </AnimatePresence>
         </main>
         
       </div>
