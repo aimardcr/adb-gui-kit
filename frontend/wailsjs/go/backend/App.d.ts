@@ -24,6 +24,10 @@ export function Reboot(arg1:string):Promise<void>;
 
 export function SelectApkFile():Promise<string>;
 
+export function SelectDirectoryForPull():Promise<string>;
+
+export function SelectDirectoryToPush():Promise<string>;
+
 export function SelectFileToPush():Promise<string>;
 
 export function SelectImageFile():Promise<string>;

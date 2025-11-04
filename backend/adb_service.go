@@ -1,9 +1,9 @@
 package backend
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
-	"fmt"
 )
 
 func (a *App) GetDevices() ([]Device, error) {
@@ -63,7 +63,7 @@ func (a *App) GetDeviceInfo() (DeviceInfo, error) {
 
 func (a *App) Reboot(mode string) error {
 	_, err := a.runCommand("adb", "reboot", mode)
-	
+
 	if err != nil {
 		return err
 	}
@@ -95,63 +95,70 @@ func (a *App) ListFiles(path string) ([]FileEntry, error) {
 
 	var files []FileEntry
 	lines := strings.Split(output, "\n")
-	
+
 	spaceRegex := regexp.MustCompile(`\s+`)
 
-	for _, line := range lines {
+	for _, rawLine := range lines {
+		line := strings.TrimSpace(rawLine)
 		if line == "" || strings.HasPrefix(line, "total") {
 			continue
 		}
 
 		parts := spaceRegex.Split(line, 9)
 		if len(parts) < 8 {
-			continue 
+			continue
 		}
 
 		permissions := parts[0]
 		fileType := "File"
-		size := "N/A"
-		
-		if permissions[0] == 'd' {
-			fileType = "Directory"
-			size = ""
-		} else if permissions[0] == 'l' {
-			fileType = "Symlink"
-			size = ""
-		} else {
-			if len(parts) > 4 {
-				size = parts[4]
+		size := ""
+		if len(parts) > 4 {
+			size = parts[4]
+		}
+
+		if len(permissions) > 0 {
+			switch permissions[0] {
+			case 'd':
+				fileType = "Directory"
+			case 'l':
+				fileType = "Symlink"
 			}
 		}
-		
+
+		if fileType == "Symlink" {
+			// hide the raw block size for symlinks; the target is more interesting
+			size = ""
+		}
+
 		var name string
 		var date string
 		var time string
-		
-		if fileType == "Directory" {
-			if len(parts) > 6 {
-				date = parts[4]
-				time = parts[5]
-				name = strings.Join(parts[6:], " ")
-			}
-		} else {
-			if len(parts) > 7 {
-				size = parts[4]
-				date = parts[5]
-				time = parts[6]
-				name = strings.Join(parts[7:], " ")
-			}
+
+		switch {
+		case len(parts) >= 8:
+			date = parts[5]
+			time = parts[6]
+			name = strings.Join(parts[7:], " ")
+		case len(parts) == 7:
+			date = parts[5]
+			name = parts[6]
+		case len(parts) == 6:
+			name = parts[5]
 		}
-		
-		if name == "" && len(parts) > 5 {
+
+		if name == "" && len(parts) > 0 {
+			// Fall back to the tail components so we still render something useful
 			name = parts[len(parts)-1]
-			time = parts[len(parts)-2]
-			date = parts[len(parts)-3]
-			if fileType == "File" && len(parts) > 4 {
-				size = parts[4]
+			if len(parts) >= 3 {
+				time = parts[len(parts)-2]
+				date = parts[len(parts)-3]
 			}
 		}
-		
+
+		name = strings.TrimSpace(name)
+		date = strings.TrimSpace(date)
+		time = strings.TrimSpace(time)
+
 		if fileType == "Symlink" {
 			linkParts := strings.Split(name, " -> ")
 			name = linkParts[0]

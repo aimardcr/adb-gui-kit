@@ -64,3 +64,23 @@ func (a *App) SelectSaveDirectory(defaultFilename string) (string, error) {
 	}
 	return selectedPath, nil
 }
+
+func (a *App) SelectDirectoryForPull() (string, error) {
+	selectedPath, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select Download Location",
+	})
+	if err != nil {
+		return "", err
+	}
+	return selectedPath, nil
+}
+
+func (a *App) SelectDirectoryToPush() (string, error) {
+	selectedPath, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select Folder to Push",
+	})
+	if err != nil {
+		return "", err
+	}
+	return selectedPath, nil
+}

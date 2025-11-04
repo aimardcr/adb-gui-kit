@@ -46,6 +46,14 @@ export function SelectApkFile() {
   return window['go']['backend']['App']['SelectApkFile']();
 }
 
+export function SelectDirectoryForPull() {
+  return window['go']['backend']['App']['SelectDirectoryForPull']();
+}
+
+export function SelectDirectoryToPush() {
+  return window['go']['backend']['App']['SelectDirectoryToPush']();
+}
+
 export function SelectFileToPush() {
   return window['go']['backend']['App']['SelectFileToPush']();
 }
