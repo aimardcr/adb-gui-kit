@@ -1,8 +1,8 @@
 export namespace backend {
 	
 	export class Device {
-	    serial: string;
-	    status: string;
+	    Serial: string;
+	    Status: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Device(source);
@@ -10,15 +10,15 @@ export namespace backend {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.serial = source["serial"];
-	        this.status = source["status"];
+	        this.Serial = source["Serial"];
+	        this.Status = source["Status"];
 	    }
 	}
 	export class DeviceInfo {
-	    model: string;
-	    androidVersion: string;
-	    buildNumber: string;
-	    batteryLevel: string;
+	    Model: string;
+	    AndroidVersion: string;
+	    BuildNumber: string;
+	    BatteryLevel: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new DeviceInfo(source);
@@ -26,19 +26,19 @@ export namespace backend {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.model = source["model"];
-	        this.androidVersion = source["androidVersion"];
-	        this.buildNumber = source["buildNumber"];
-	        this.batteryLevel = source["batteryLevel"];
+	        this.Model = source["Model"];
+	        this.AndroidVersion = source["AndroidVersion"];
+	        this.BuildNumber = source["BuildNumber"];
+	        this.BatteryLevel = source["BatteryLevel"];
 	    }
 	}
 	export class FileEntry {
-	    name: string;
-	    type: string;
-	    size: string;
-	    permissions: string;
-	    date: string;
-	    time: string;
+	    Name: string;
+	    Type: string;
+	    Size: string;
+	    Permissions: string;
+	    Date: string;
+	    Time: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new FileEntry(source);
@@ -46,12 +46,12 @@ export namespace backend {
 	
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
-	        this.name = source["name"];
-	        this.type = source["type"];
-	        this.size = source["size"];
-	        this.permissions = source["permissions"];
-	        this.date = source["date"];
-	        this.time = source["time"];
+	        this.Name = source["Name"];
+	        this.Type = source["Type"];
+	        this.Size = source["Size"];
+	        this.Permissions = source["Permissions"];
+	        this.Date = source["Date"];
+	        this.Time = source["Time"];
 	    }
 	}
 
