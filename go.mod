@@ -1,4 +1,4 @@
-module my-astro-app
+module adb-kit
 
 go 1.23
 
