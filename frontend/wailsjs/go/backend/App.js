@@ -26,6 +26,18 @@ export function InstallPackage(arg1) {
   return window['go']['backend']['App']['InstallPackage'](arg1);
 }
 
+export function ListFiles(arg1) {
+  return window['go']['backend']['App']['ListFiles'](arg1);
+}
+
+export function PullFile(arg1, arg2) {
+  return window['go']['backend']['App']['PullFile'](arg1, arg2);
+}
+
+export function PushFile(arg1, arg2) {
+  return window['go']['backend']['App']['PushFile'](arg1, arg2);
+}
+
 export function Reboot(arg1) {
   return window['go']['backend']['App']['Reboot'](arg1);
 }
@@ -34,8 +46,16 @@ export function SelectApkFile() {
   return window['go']['backend']['App']['SelectApkFile']();
 }
 
+export function SelectFileToPush() {
+  return window['go']['backend']['App']['SelectFileToPush']();
+}
+
 export function SelectImageFile() {
   return window['go']['backend']['App']['SelectImageFile']();
+}
+
+export function SelectSaveDirectory(arg1) {
+  return window['go']['backend']['App']['SelectSaveDirectory'](arg1);
 }
 
 export function UninstallPackage(arg1) {

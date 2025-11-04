@@ -14,11 +14,21 @@ export function Greet(arg1:string):Promise<string>;
 
 export function InstallPackage(arg1:string):Promise<string>;
 
+export function ListFiles(arg1:string):Promise<Array<backend.FileEntry>>;
+
+export function PullFile(arg1:string,arg2:string):Promise<string>;
+
+export function PushFile(arg1:string,arg2:string):Promise<string>;
+
 export function Reboot(arg1:string):Promise<void>;
 
 export function SelectApkFile():Promise<string>;
 
+export function SelectFileToPush():Promise<string>;
+
 export function SelectImageFile():Promise<string>;
+
+export function SelectSaveDirectory(arg1:string):Promise<string>;
 
 export function UninstallPackage(arg1:string):Promise<string>;
 

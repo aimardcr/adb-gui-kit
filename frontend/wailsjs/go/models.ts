@@ -32,6 +32,28 @@ export namespace backend {
 	        this.batteryLevel = source["batteryLevel"];
 	    }
 	}
+	export class FileEntry {
+	    name: string;
+	    type: string;
+	    size: string;
+	    permissions: string;
+	    date: string;
+	    time: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new FileEntry(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.type = source["type"];
+	        this.size = source["size"];
+	        this.permissions = source["permissions"];
+	        this.date = source["date"];
+	        this.time = source["time"];
+	    }
+	}
 
 }
 

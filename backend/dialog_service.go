@@ -43,3 +43,24 @@ func (a *App) SelectApkFile() (string, error) {
 	}
 	return selectedPath, nil
 }
+
+func (a *App) SelectFileToPush() (string, error) {
+	selectedPath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select File to Push",
+	})
+	if err != nil {
+		return "", err
+	}
+	return selectedPath, nil
+}
+
+func (a *App) SelectSaveDirectory(defaultFilename string) (string, error) {
+	selectedPath, err := runtime.SaveFileDialog(a.ctx, runtime.SaveDialogOptions{
+		Title:           "Select Save Location",
+		DefaultFilename: defaultFilename,
+	})
+	if err != nil {
+		return "", err
+	}
+	return selectedPath, nil
+}

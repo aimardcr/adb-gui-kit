@@ -17,6 +17,15 @@ type DeviceInfo struct {
 	BatteryLevel   string `json:"batteryLevel"`
 }
 
+type FileEntry struct {
+	Name        string `json:"name"`
+	Type        string `json:"type"`
+	Size        string `json:"size"`
+	Permissions string `json:"permissions"`
+	Date        string `json:"date"`
+	Time        string `json:"time"`
+}
+
 // App struct
 type App struct {
 	ctx context.Context
