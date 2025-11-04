@@ -1,6 +1,6 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
 import "@/styles/global.css";
+import { Button } from "@/components/ui/button";
 import { 
   LayoutDashboard, 
   Box, 
@@ -9,7 +9,40 @@ import {
   Settings 
 } from "lucide-react";
 
-export function MainLayout({ children }) {
+import { ViewDashboard } from './views/ViewDashboard';
+import { ViewAppManager } from './views/ViewAppManager';
+import { ViewFileExplorer } from './views/ViewFileExplorer';
+import { ViewFlasher } from './views/ViewFlasher';
+import { ViewUtilities } from './views/ViewUtilities';
+
+const VIEWS = {
+  DASHBOARD: 'dashboard',
+  APPS: 'apps',
+  FILES: 'files',
+  FLASHER: 'flasher',
+  UTILS: 'utils',
+};
+
+export function MainLayout() {
+  const [activeView, setActiveView] = useState(VIEWS.DASHBOARD);
+
+  const renderActiveView = () => {
+    switch (activeView) {
+      case VIEWS.DASHBOARD:
+        return <ViewDashboard />;
+      case VIEWS.APPS:
+        return <ViewAppManager />;
+      case VIEWS.FILES:
+        return <ViewFileExplorer />;
+      case VIEWS.FLASHER:
+        return <ViewFlasher />;
+      case VIEWS.UTILS:
+        return <ViewUtilities />;
+      default:
+        return <ViewDashboard />;
+    }
+  };
+
   return (
     <div className="flex h-screen bg-background text-foreground">
       
@@ -21,23 +54,43 @@ export function MainLayout({ children }) {
         </div>
         
         <nav className="flex flex-col space-y-1">
-          <Button variant="ghost" className="justify-start text-base">
+          <Button 
+            variant={activeView === VIEWS.DASHBOARD ? "secondary" : "ghost"}
+            className="justify-start text-base"
+            onClick={() => setActiveView(VIEWS.DASHBOARD)}
+          >
             <LayoutDashboard className="mr-2 h-4 w-4" />
             Dashboard
           </Button>
-          <Button variant="ghost" className="justify-start text-base">
+          <Button 
+            variant={activeView === VIEWS.APPS ? "secondary" : "ghost"}
+            className="justify-start text-base"
+            onClick={() => setActiveView(VIEWS.APPS)}
+          >
             <Box className="mr-2 h-4 w-4" />
             Application
           </Button>
-          <Button variant="ghost" className="justify-start text-base">
+          <Button 
+            variant={activeView === VIEWS.FILES ? "secondary" : "ghost"}
+            className="justify-start text-base"
+            onClick={() => setActiveView(VIEWS.FILES)}
+          >
             <FolderOpen className="mr-2 h-4 w-4" />
             File
           </Button>
-          <Button variant="ghost" className="justify-start text-base">
+          <Button 
+            variant={activeView === VIEWS.FLASHER ? "secondary" : "ghost"}
+            className="justify-start text-base"
+            onClick={() => setActiveView(VIEWS.FLASHER)}
+          >
             <Terminal className="mr-2 h-4 w-4" />
             Flasher
           </Button>
-          <Button variant="ghost" className="justify-start text-base">
+          <Button 
+            variant={activeView === VIEWS.UTILS ? "secondary" : "ghost"}
+            className="justify-start text-base"
+            onClick={() => setActiveView(VIEWS.UTILS)}
+          >
             <Settings className="mr-2 h-4 w-4" />
             Utility
           </Button>
@@ -45,7 +98,7 @@ export function MainLayout({ children }) {
       </aside>
       
       <main className="flex-1 p-6 overflow-auto">
-        {children}
+        {renderActiveView()}
       </main>
       
     </div>
