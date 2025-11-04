@@ -84,14 +84,14 @@ export function ViewDashboard() {
           ) : (
             <div className="flex flex-col gap-2">
               {devices.map((device) => (
-                <div key={device.serial} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <span className="font-mono">{device.serial}</span>
+                <div key={device.Serial} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <span className="font-mono">{device.Serial}</span>
                   <span 
                     className={`font-semibold ${
-                      device.status === 'device' ? 'text-green-500' : 'text-yellow-500'
+                      device.Status === 'device' ? 'text-green-500' : 'text-yellow-500'
                     }`}
                   >
-                    {device.status}
+                    {device.Status}
                   </span>
                 </div>
               ))}
@@ -127,10 +127,10 @@ export function ViewDashboard() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
-              <InfoItem icon={<Smartphone size={18} />} label="Model" value={deviceInfo.model} />
-              <InfoItem icon={<Battery size={18} />} label="Battery" value={deviceInfo.batteryLevel} />
-              <InfoItem icon={<Info size={18} />} label="Android Version" value={deviceInfo.androidVersion} />
-              <InfoItem icon={<Server size={18} />} label="Build Number" value={deviceInfo.buildNumber} />
+              <InfoItem icon={<Smartphone size={18} />} label="Model" value={deviceInfo.Model} />
+              <InfoItem icon={<Battery size={18} />} label="Battery" value={deviceInfo.BatteryLevel} />
+              <InfoItem icon={<Info size={18} />} label="Android Version" value={deviceInfo.AndroidVersion} />
+              <InfoItem icon={<Server size={18} />} label="Build Number" value={deviceInfo.BuildNumber} />
 
             </div>
           )}

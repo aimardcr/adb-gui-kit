@@ -130,10 +130,10 @@ export function ViewFlasher() {
           ) : (
             <div className="flex flex-col gap-2">
               {fastbootDevices.map((device) => (
-                <div key={device.serial} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <span className="font-mono">{device.serial}</span>
+                <div key={device.Serial} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <span className="font-mono">{device.Serial}</span>
                   <span className="font-semibold text-blue-500">
-                    {device.status}
+                    {device.Status}
                   </span>
                 </div>
               ))}

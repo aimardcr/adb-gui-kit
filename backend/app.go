@@ -6,24 +6,22 @@ import (
 )
 
 type Device struct {
-	Serial string `json:"serial"`
-	Status string `json:"status"`
+	Serial string
+	Status string
 }
-
 type DeviceInfo struct {
-	Model         string `json:"model"`
-	AndroidVersion string `json:"androidVersion"`
-	BuildNumber    string `json:"buildNumber"`
-	BatteryLevel   string `json:"batteryLevel"`
+	Model          string
+	AndroidVersion string
+	BuildNumber    string
+	BatteryLevel   string
 }
-
 type FileEntry struct {
-	Name        string `json:"name"`
-	Type        string `json:"type"`
-	Size        string `json:"size"`
-	Permissions string `json:"permissions"`
-	Date        string `json:"date"`
-	Time        string `json:"time"`
+	Name        string
+	Type        string
+	Size        string
+	Permissions string
+	Date        string
+	Time        string
 }
 
 // App struct
