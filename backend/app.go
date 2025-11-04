@@ -5,6 +5,18 @@ import (
 	"fmt"
 )
 
+type Device struct {
+	Serial string `json:"serial"`
+	Status string `json:"status"`
+}
+
+type DeviceInfo struct {
+	Model         string `json:"model"`
+	AndroidVersion string `json:"androidVersion"`
+	BuildNumber    string `json:"buildNumber"`
+	BatteryLevel   string `json:"batteryLevel"`
+}
+
 // App struct
 type App struct {
 	ctx context.Context
