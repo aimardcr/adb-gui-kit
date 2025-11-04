@@ -1,0 +1,14 @@
+{
+  "$schema": "https://wails.io/schemas/config.v2.json",
+  "name": "my-astro-app",
+  "outputfilename": "my-astro-app",
+  "frontend:install": "pnpm install",
+  "frontend:build": "pnpm build",
+  "frontend:dev:watcher": "pnpm dev",
+  "frontend:dev:serverUrl": "http://localhost:4333",
+  "frontend:dev:message": "ready in",
+  "author": {
+    "name": "Drenzzz",
+    "email": "realdrenzzz@gmail.com"
+  }
+}
