@@ -46,7 +46,7 @@ func (a *App) SelectApkFile() (string, error) {
 
 func (a *App) SelectFileToPush() (string, error) {
 	selectedPath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select File to Push",
+		Title: "Select File to Import",
 	})
 	if err != nil {
 		return "", err
@@ -77,7 +77,7 @@ func (a *App) SelectDirectoryForPull() (string, error) {
 
 func (a *App) SelectDirectoryToPush() (string, error) {
 	selectedPath, err := runtime.OpenDirectoryDialog(a.ctx, runtime.OpenDialogOptions{
-		Title: "Select Folder to Push",
+		Title: "Select Folder to Import",
 	})
 	if err != nil {
 		return "", err

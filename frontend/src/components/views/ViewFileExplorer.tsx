@@ -105,14 +105,14 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
       toastId = toast.loading(`Pushing ${fileName}...`, { description: `To: ${remotePath}` });
 
       const output = await PushFile(localPath, remotePath);
-      toast.success("File Push Complete", { description: output, id: toastId });
+      toast.success("File Import Complete", { description: output, id: toastId });
       loadFiles(currentPath);
     } catch (error) {
-      console.error("Push file error:", error);
+      console.error("Import file error:", error);
       if (toastId) {
-        toast.error("File Push Failed", { description: String(error), id: toastId });
+        toast.error("File Import Failed", { description: String(error), id: toastId });
       } else {
-        toast.error("File Push Failed", { description: String(error) });
+        toast.error("File Import Failed", { description: String(error) });
       }
     } finally {
       setIsPushingFile(false);
@@ -135,14 +135,14 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
       toastId = toast.loading(`Pushing folder ${folderName}...`, { description: `To: ${remotePath}` });
 
       const output = await PushFile(localFolderPath, remotePath);
-      toast.success("Folder Push Complete", { description: output, id: toastId });
+      toast.success("Folder Import Complete", { description: output, id: toastId });
       loadFiles(currentPath);
     } catch (error) {
-      console.error("Push folder error:", error);
+      console.error("Import folder error:", error);
       if (toastId) {
-        toast.error("Folder Push Failed", { description: String(error), id: toastId });
+        toast.error("Folder Import Failed", { description: String(error), id: toastId });
       } else {
-        toast.error("Folder Push Failed", { description: String(error) });
+        toast.error("Folder Import Failed", { description: String(error) });
       }
     }
     setIsPushingFolder(false);
@@ -155,7 +155,7 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
       return;
     }
     if (selectedFile.Type !== 'File' && selectedFile.Type !== 'Directory') {
-      toast.error("Cannot pull this item type.", { description: `Selected type: ${selectedFile.Type}`});
+      toast.error("Cannot export this item type.", { description: `Selected type: ${selectedFile.Type}`});
       return;
     }
 
@@ -180,13 +180,13 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
       toastId = toast.loading(`Pulling ${selectedFile.Name}...`, { description: `From: ${remotePath}` });
       
       const output = await PullFile(remotePath, localPath);
-      toast.success("Pull Complete", { description: `Saved to ${localPath}`, id: toastId });
+      toast.success("Export Complete", { description: `Saved to ${localPath}`, id: toastId });
     } catch (error) {
-      console.error("Pull error:", error);
+      console.error("Export error:", error);
       if (toastId) {
-        toast.error("Pull Failed", { description: String(error), id: toastId });
+        toast.error("Export Failed", { description: String(error), id: toastId });
       } else {
-        toast.error("Pull Failed", { description: String(error) });
+        toast.error("Export Failed", { description: String(error) });
       }
     }
     setIsPulling(false);
@@ -210,16 +210,16 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
             
             <Button variant="default" onClick={handlePushFile} disabled={isBusy}>
               {isPushingFile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-              Push File
+              Import File
             </Button>
             <Button variant="default" onClick={handlePushFolder} disabled={isBusy}>
               {isPushingFolder ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FolderUp className="mr-2 h-4 w-4" />}
-              Push Folder
+              Import Folder
             </Button>
             
             <Button variant="default" onClick={handlePull} disabled={isPullDisabled || isBusy}>
               {isPulling ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-              Pull Selected
+              Export Selected
             </Button>
           </div>
         </CardHeader>

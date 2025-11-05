@@ -95,7 +95,7 @@ export function ViewUtilities({ activeView }: { activeView: string }) {
           <CardTitle>Future Utilities</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">Logcat, Shell, and Screen Capture controls will appear here in a future update.</p>
+          <p className="text-muted-foreground">Coming Soon.</p>
         </CardContent>
       </Card>
     </div>
