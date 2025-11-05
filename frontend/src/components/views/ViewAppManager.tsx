@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Loader2, Package, Trash2, FileUp } from "lucide-react";
 
-export function ViewAppManager() {
+export function ViewAppManager({ activeView }: { activeView: string }) {
   const [apkPath, setApkPath] = useState('');
   const [isInstalling, setIsInstalling] = useState(false);
 
@@ -45,7 +45,7 @@ export function ViewAppManager() {
         description: output,
         id: toastId,
       });
-      setApkPath('');
+      setApkPath(''); 
     } catch (error) {
       console.error("Install error:", error);
       toast.error("Install Failed", {
@@ -57,9 +57,6 @@ export function ViewAppManager() {
     }
   };
 
-  /**
-   * Menjalankan fungsi UninstallPackage dari Go
-   */
   const handleUninstall = async () => {
     if (!packageName) {
       toast.error("Package name cannot be empty.");
@@ -77,7 +74,7 @@ export function ViewAppManager() {
         description: output,
         id: toastId,
       });
-      setPackageName('');
+      setPackageName(''); 
     } catch (error) {
       console.error("Uninstall error:", error);
       toast.error("Uninstall Failed", {
@@ -116,6 +113,7 @@ export function ViewAppManager() {
             {apkPath ? apkPath : "No file selected."}
           </p>
           <Button 
+            variant="default"
             className="w-full"
             disabled={isInstalling || !apkPath}
             onClick={handleInstall}

@@ -48,17 +48,17 @@ export function MainLayout() {
   const renderActiveView = () => {
     switch (activeView) {
       case VIEWS.DASHBOARD:
-        return <ViewDashboard />;
+        return <ViewDashboard activeView={activeView} />;
       case VIEWS.APPS:
-        return <ViewAppManager />;
+        return <ViewAppManager activeView={activeView} />;
       case VIEWS.FILES:
-        return <ViewFileExplorer />;
+        return <ViewFileExplorer activeView={activeView} />;
       case VIEWS.FLASHER:
-        return <ViewFlasher />;
+        return <ViewFlasher activeView={activeView} />;
       case VIEWS.UTILS:
-        return <ViewUtilities />;
+        return <ViewUtilities activeView={activeView} />;
       default:
-        return <ViewDashboard />;
+        return <ViewDashboard activeView={activeView} />;
     }
   };
 
@@ -185,10 +185,11 @@ export function MainLayout() {
           </TooltipContent>
         </Tooltip>
 
-                <main className="flex-1 p-6 overflow-auto">
+        
+        <main className="flex-1 p-6 overflow-auto">
           <AnimatePresence mode="wait">
             <motion.div
-              key={activeView}
+              key={activeView} 
               initial="hidden"
               animate="visible"
               exit="exit"

@@ -9,7 +9,7 @@ import { RotateCw, Loader2, Power, Terminal } from "lucide-react";
 
 type RebootMode = 'normal' | 'recovery' | 'bootloader' | null;
 
-export function ViewUtilities() {
+export function ViewUtilities({ activeView }: { activeView: string }) {
   const [loadingMode, setLoadingMode] = useState<RebootMode>(null);
 
   const handleReboot = async (mode: string, modeId: RebootMode) => {
@@ -45,9 +45,9 @@ export function ViewUtilities() {
           <Button
             variant="outline"
             size="lg"
-            className="flex-col h-24"
+            className="flex-col h-24" 
             disabled={!!loadingMode}
-            onClick={() => handleReboot('', 'normal')}
+            onClick={() => handleReboot('', 'normal')} 
           >
             {isLoading('normal') ? (
               <Loader2 className="h-6 w-6 animate-spin" />

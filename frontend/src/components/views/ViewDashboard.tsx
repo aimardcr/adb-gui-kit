@@ -10,7 +10,7 @@ import { Smartphone, Battery, Info, Server, RefreshCw, Loader2 } from "lucide-re
 type Device = backend.Device;
 type DeviceInfo = backend.DeviceInfo;
 
-export function ViewDashboard() {
+export function ViewDashboard({ activeView }: { activeView: string }) {
   const [devices, setDevices] = useState<Device[]>([]);
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo | null>(null);
   const [isRefreshingDevices, setIsRefreshingDevices] = useState(false);
@@ -46,18 +46,22 @@ export function ViewDashboard() {
   };
 
   useEffect(() => {
-    refreshDevices();
-  }, []);
+    if (activeView === 'dashboard') {
+      refreshDevices();
+    }
+  }, [activeView]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (!isRefreshingDevices) {
-        refreshDevices();
-      }
-    }, 3000);
-
-    return () => clearInterval(interval);
-  }, [isRefreshingDevices]); 
+    if (activeView === 'dashboard') {
+      const interval = setInterval(() => {
+        if (!isRefreshingDevices) {
+          refreshDevices();
+        }
+      }, 3000); 
+      
+      return () => clearInterval(interval);
+    }
+  }, [activeView, isRefreshingDevices]);
 
   return (
     <div className="flex flex-col gap-6">

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import path from 'path-browserify';
 
-// Impor Wails Bindings
 import { 
   ListFiles, 
   PushFile, 
@@ -9,11 +8,10 @@ import {
   SelectFileToPush, 
   SelectSaveDirectory, 
   SelectDirectoryForPull,
-  SelectDirectoryToPush // <-- Fungsi baru kita
+  SelectDirectoryToPush 
 } from '../../../wailsjs/go/backend/App';
 import { backend } from '../../../wailsjs/go/models';
 
-// Impor Komponen UI
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -26,44 +24,31 @@ import {
 } from "@/components/ui/table";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
-import { Loader2, RefreshCw, Upload, Download, Folder, File, ArrowUp, FolderUp } from "lucide-react"; // <-- Ikon 'FolderUp' baru
+import { Loader2, RefreshCw, Upload, Download, Folder, File, ArrowUp, FolderUp } from "lucide-react"; 
 
 type FileEntry = backend.FileEntry;
 
-const getBaseName = (targetPath: string) => {
-  if (!targetPath) {
-    return "";
-  }
-  const normalized = targetPath.replace(/\\/g, "/").replace(/\/+$/, "");
-  const segments = normalized.split("/");
-  return segments[segments.length - 1] ?? normalized;
-};
-
-export function ViewFileExplorer() {
-  // State
+export function ViewFileExplorer({ activeView }: { activeView: string }) {
   const [fileList, setFileList] = useState<FileEntry[]>([]);
   const [currentPath, setCurrentPath] = useState('/sdcard/');
   const [selectedFile, setSelectedFile] = useState<FileEntry | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Pisahkan state loading
   const [isPushingFile, setIsPushingFile] = useState(false);
   const [isPushingFolder, setIsPushingFolder] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
-
-  // --- FUNGSI CORE ---
 
   const loadFiles = async (path: string) => {
     setIsLoading(true);
     setSelectedFile(null); 
     try {
       const files = await ListFiles(path);
-      // Perbaikan bug crash
+      
       if (!files) {
         setFileList([]);
         setCurrentPath(path);
         setIsLoading(false);
-        return;
+        return; 
       }
       
       files.sort((a, b) => {
@@ -77,17 +62,16 @@ export function ViewFileExplorer() {
     } catch (error) {
       console.error("Failed to list files:", error);
       toast.error("Failed to list files", { description: String(error) });
-      // Jika gagal (cth: "Operation not permitted"), jangan ubah path
       setCurrentPath(currentPath);
     }
     setIsLoading(false);
   };
 
   useEffect(() => {
-    loadFiles(currentPath);
-  }, []);
-
-  // --- FUNGSI HANDLER ---
+    if (activeView === 'files') {
+      loadFiles(currentPath);
+    }
+  }, [activeView]);
 
   const handleRowClick = (file: FileEntry) => {
     setSelectedFile(file);
@@ -95,7 +79,6 @@ export function ViewFileExplorer() {
 
   const handleRowDoubleClick = (file: FileEntry) => {
     if (file.Type === 'Directory') {
-      // Pastikan path digabung dengan benar
       const newPath = path.posix.join(currentPath, file.Name) + '/';
       loadFiles(newPath);
     }
@@ -103,16 +86,10 @@ export function ViewFileExplorer() {
 
   const handleBackClick = () => {
     if (currentPath === '/') return;
-    // Gunakan 'path.posix.join' untuk menangani path '..'
     const newPath = path.posix.join(currentPath, '..') + '/';
     loadFiles(newPath);
   };
 
-  // --- LOGIKA PUSH/PULL BARU ---
-
-  /**
-   * Menangani 'Push' (Upload) FILE
-   */
   const handlePushFile = async () => {
     setIsPushingFile(true);
     let toastId: string | number = "";
@@ -123,7 +100,7 @@ export function ViewFileExplorer() {
         return; 
       }
 
-      const fileName = getBaseName(localPath);
+      const fileName = path.basename(localPath);
       const remotePath = path.posix.join(currentPath, fileName);
       
       toastId = toast.loading(`Pushing ${fileName}...`, { description: `To: ${remotePath}` });
@@ -138,33 +115,23 @@ export function ViewFileExplorer() {
     setIsPushingFile(false);
   };
 
-  /**
-   * Menangani 'Push' (Upload) FOLDER
-   */
   const handlePushFolder = async () => {
     setIsPushingFolder(true);
     let toastId: string | number = "";
     try {
-      // 1. Pilih folder dari PC
       const localFolderPath = await SelectDirectoryToPush();
       if (!localFolderPath) {
         setIsPushingFolder(false);
-        return; // Dibatalkan
+        return; 
       }
 
-      // 'adb push' akan menyalin folder *ke dalam* currentPath
-      // e.g., adb push "C:\MyFolder" /sdcard/
-      // Hasil: /sdcard/MyFolder
       const remotePath = currentPath;
-      const folderName = getBaseName(localFolderPath);
+      const folderName = path.basename(localFolderPath);
       
       toastId = toast.loading(`Pushing folder ${folderName}...`, { description: `To: ${remotePath}` });
 
-      // 2. Push folder ke perangkat
       const output = await PushFile(localFolderPath, remotePath);
       toast.success("Folder Push Complete", { description: output, id: toastId });
-      
-      // 3. Refresh
       loadFiles(currentPath);
     } catch (error) {
       console.error("Push folder error:", error);
@@ -174,9 +141,6 @@ export function ViewFileExplorer() {
   };
 
 
-  /**
-   * Menangani 'Pull' (Download) FILE atau FOLDER
-   */
   const handlePull = async () => {
     if (!selectedFile) {
       toast.error("No file or folder selected to pull.");
@@ -193,24 +157,18 @@ export function ViewFileExplorer() {
       const remotePath = path.posix.join(currentPath, selectedFile.Name);
       let localPath = "";
 
-      // Logika yang diperbaiki dari sebelumnya
       if (selectedFile.Type === 'Directory') {
         toast.info("Select a folder to save the directory into.");
-        localPath = await SelectDirectoryForPull(); // Pilih FOLDER tujuan
+        localPath = await SelectDirectoryForPull(); 
       } else {
-        localPath = await SelectSaveDirectory(selectedFile.Name); // Pilih FILE tujuan
+        localPath = await SelectSaveDirectory(selectedFile.Name); 
       }
 
       if (!localPath) {
         setIsPulling(false);
-        return; // Dibatalkan
+        return; 
       }
       
-      // 'adb pull' akan meng-copy ke 'localPath'
-      // Jika localPath adalah folder, ia akan menyalin ke dalamnya.
-      // Jika itu file, ia akan menyalin ke file itu.
-      // Ini sudah benar.
-
       toastId = toast.loading(`Pulling ${selectedFile.Name}...`, { description: `From: ${remotePath}` });
       
       const output = await PullFile(remotePath, localPath);
@@ -222,12 +180,11 @@ export function ViewFileExplorer() {
     setIsPulling(false);
   };
   
-  // Helper loading
   const isBusy = isLoading || isPushingFile || isPushingFolder || isPulling;
   const isPullDisabled = isPulling || !selectedFile || (selectedFile.Type !== 'File' && selectedFile.Type !== 'Directory');
 
   return (
-    <div className="flex flex-col h-full gap-4">
+    <div className="flex flex-col h-[calc(100vh-4rem)] gap-4">
       
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
@@ -239,7 +196,6 @@ export function ViewFileExplorer() {
               {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
             </Button>
             
-            {/* --- TOMBOL BARU --- */}
             <Button variant="default" onClick={handlePushFile} disabled={isBusy}>
               {isPushingFile ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
               Push File
@@ -260,16 +216,16 @@ export function ViewFileExplorer() {
             <Button variant="ghost" size="icon" onClick={handleBackClick} disabled={currentPath === '/' || isBusy}>
               <ArrowUp className="h-4 w-4" />
             </Button>
-            <p className="font-mono text-sm">{currentPath}</p>
+            <p className="font-mono text-sm truncate">{currentPath}</p>
           </div>
         </CardContent>
       </Card>
 
-      <Card className="flex-1 flex flex-col">
+      <Card className="flex-1 flex flex-col overflow-hidden">
         <CardContent className="p-0 flex-1 flex">
-          <ScrollArea className="flex-1">
+          <ScrollArea className="flex-1 h-full">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 bg-muted/50 backdrop-blur-sm">
                 <TableRow>
                   <TableHead className="w-[50px]"></TableHead>
                   <TableHead>Name</TableHead>

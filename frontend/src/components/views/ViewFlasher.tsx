@@ -21,7 +21,7 @@ import { Loader2, AlertTriangle, FileUp, Trash2, Smartphone, RefreshCw } from "l
 
 type Device = backend.Device;
 
-export function ViewFlasher() {
+export function ViewFlasher({ activeView }: { activeView: string }) {
   const [partition, setPartition] = useState('');
   const [filePath, setFilePath] = useState('');
   const [isFlashing, setIsFlashing] = useState(false);
@@ -43,18 +43,22 @@ export function ViewFlasher() {
   };
 
   useEffect(() => {
-    refreshFastbootDevices();
-    const interval = setInterval(() => {
-      if (!isRefreshingFastboot) {
-        refreshFastbootDevices();
-      }
-    }, 3000); 
-    return () => clearInterval(interval);
-  }, [isRefreshingFastboot]);
+    if (activeView === 'flasher') {
+      refreshFastbootDevices();
+      
+      const interval = setInterval(() => {
+        if (!isRefreshingFastboot) {
+          refreshFastbootDevices();
+        }
+      }, 3000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [activeView, isRefreshingFastboot]);
 
   const handleSelectFile = async () => {
     try {
-      const selectedPath = await SelectImageFile();
+      const selectedPath = await SelectImageFile(); 
       
       if (selectedPath) {
         setFilePath(selectedPath);
@@ -129,6 +133,7 @@ export function ViewFlasher() {
             </p>
           ) : (
             <div className="flex flex-col gap-2">
+              {/* PERBAIKAN: Menggunakan properti Uppercase */}
               {fastbootDevices.map((device) => (
                 <div key={device.Serial} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <span className="font-mono">{device.Serial}</span>
@@ -182,6 +187,7 @@ export function ViewFlasher() {
           </div>
 
           <Button 
+            variant="default"
             className="w-full"
             disabled={isFlashing || !partition || !filePath || fastbootDevices.length === 0}
             onClick={handleFlash}
