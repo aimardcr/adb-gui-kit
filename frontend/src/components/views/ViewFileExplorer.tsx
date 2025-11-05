@@ -96,11 +96,10 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
     try {
       const localPath = await SelectFileToPush();
       if (!localPath) {
-        setIsPushingFile(false);
         return; 
       }
 
-      const fileName = path.basename(localPath);
+      const fileName = localPath.replace(/\\/g, '/').split('/').pop() || path.basename(localPath);
       const remotePath = path.posix.join(currentPath, fileName);
       
       toastId = toast.loading(`Pushing ${fileName}...`, { description: `To: ${remotePath}` });
@@ -110,9 +109,14 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
       loadFiles(currentPath);
     } catch (error) {
       console.error("Push file error:", error);
-      toast.error("File Push Failed", { description: String(error), id: toastId });
+      if (toastId) {
+        toast.error("File Push Failed", { description: String(error), id: toastId });
+      } else {
+        toast.error("File Push Failed", { description: String(error) });
+      }
+    } finally {
+      setIsPushingFile(false);
     }
-    setIsPushingFile(false);
   };
 
   const handlePushFolder = async () => {
@@ -126,7 +130,7 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
       }
 
       const remotePath = currentPath;
-      const folderName = path.basename(localFolderPath);
+      const folderName = localFolderPath.replace(/\\/g, '/').split('/').pop() || path.basename(localFolderPath);
       
       toastId = toast.loading(`Pushing folder ${folderName}...`, { description: `To: ${remotePath}` });
 
@@ -135,7 +139,11 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
       loadFiles(currentPath);
     } catch (error) {
       console.error("Push folder error:", error);
-      toast.error("Folder Push Failed", { description: String(error), id: toastId });
+      if (toastId) {
+        toast.error("Folder Push Failed", { description: String(error), id: toastId });
+      } else {
+        toast.error("Folder Push Failed", { description: String(error) });
+      }
     }
     setIsPushingFolder(false);
   };
@@ -175,7 +183,11 @@ export function ViewFileExplorer({ activeView }: { activeView: string }) {
       toast.success("Pull Complete", { description: `Saved to ${localPath}`, id: toastId });
     } catch (error) {
       console.error("Pull error:", error);
-      toast.error("Pull Failed", { description: String(error), id: toastId });
+      if (toastId) {
+        toast.error("Pull Failed", { description: String(error), id: toastId });
+      } else {
+        toast.error("Pull Failed", { description: String(error) });
+      }
     }
     setIsPulling(false);
   };

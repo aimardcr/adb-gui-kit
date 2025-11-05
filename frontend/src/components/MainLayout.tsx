@@ -24,6 +24,7 @@ import { ViewAppManager } from './views/ViewAppManager';
 import { ViewFileExplorer } from './views/ViewFileExplorer';
 import { ViewFlasher } from './views/ViewFlasher';
 import { ViewUtilities } from './views/ViewUtilities';
+import { Toaster } from "@/components/ui/sonner";
 
 const VIEWS = {
   DASHBOARD: 'dashboard',
@@ -64,7 +65,8 @@ export function MainLayout() {
 
   return (
     <TooltipProvider delayDuration={0}> 
-      <div className="relative flex h-screen bg-background text-foreground overflow-hidden">
+      <>
+        <div className="relative flex h-screen bg-background text-foreground overflow-hidden">
         
         <aside 
           className={cn(
@@ -200,8 +202,9 @@ export function MainLayout() {
             </motion.div>
           </AnimatePresence>
         </main>
-        
-      </div>
+        </div>
+        <Toaster position="top-right" richColors closeButton />
+      </>
     </TooltipProvider>
   );
 }
