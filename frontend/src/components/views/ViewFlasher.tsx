@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState, useEffect, useCallback, useRef } from 'react'; 
 import { WipeData, FlashPartition, SelectImageFile, GetFastbootDevices } from '../../../wailsjs/go/backend/App';
 import { backend } from '../../../wailsjs/go/models';
 
@@ -21,6 +21,33 @@ import { Loader2, AlertTriangle, FileUp, Trash2, Smartphone, RefreshCw } from "l
 
 type Device = backend.Device;
 
+const sanitizeFastbootDevices = (devices: Device[] | null | undefined): Device[] => {
+  if (!Array.isArray(devices)) {
+    return [];
+  }
+
+  return devices
+    .filter((device): device is Device => !!device && typeof device.Serial === 'string')
+    .map((device) => ({
+      Serial: device.Serial,
+      Status: device.Status ?? 'fastboot',
+    }));
+};
+
+const areDeviceListsEqual = (a: Device[], b: Device[]): boolean => {
+  if (a.length !== b.length) {
+    return false;
+  }
+
+  for (let i = 0; i < a.length; i += 1) {
+    if (a[i].Serial !== b[i].Serial || a[i].Status !== b[i].Status) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export function ViewFlasher({ activeView }: { activeView: string }) {
   const [partition, setPartition] = useState('');
   const [filePath, setFilePath] = useState('');
@@ -29,32 +56,103 @@ export function ViewFlasher({ activeView }: { activeView: string }) {
 
   const [fastbootDevices, setFastbootDevices] = useState<Device[]>([]);
   const [isRefreshingFastboot, setIsRefreshingFastboot] = useState(false);
-
-  const refreshFastbootDevices = async () => {
-    setIsRefreshingFastboot(true);
-    try {
-      const result = await GetFastbootDevices();
-      setFastbootDevices(result || []);
-    } catch (error) {
-      console.error("Error refreshing fastboot devices:", error);
-      setFastbootDevices([]);
-    }
-    setIsRefreshingFastboot(false);
-  };
+  const [fastbootError, setFastbootError] = useState<string | null>(null);
+  const isMountedRef = useRef(true);
+  const fastbootDevicesRef = useRef<Device[]>([]);
+  const refreshInFlightRef = useRef(false);
+  const queuedRefreshRef = useRef(false);
+  const emptyPollCountRef = useRef(0);
 
   useEffect(() => {
-    if (activeView === 'flasher') {
-      refreshFastbootDevices();
-      
-      const interval = setInterval(() => {
-        if (!isRefreshingFastboot) {
-          refreshFastbootDevices();
-        }
-      }, 3000);
-      
-      return () => clearInterval(interval);
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  const applyFastbootDevices = useCallback((devices: Device[]) => {
+    if (!isMountedRef.current) {
+      return;
     }
-  }, [activeView, isRefreshingFastboot]);
+    fastbootDevicesRef.current = devices;
+    setFastbootDevices((current) =>
+      areDeviceListsEqual(current, devices) ? current : devices
+    );
+  }, []);
+
+  const refreshFastbootDevices = useCallback(
+    async ({ silent }: { silent?: boolean } = {}) => {
+      if (refreshInFlightRef.current) {
+        queuedRefreshRef.current = true;
+        return;
+      }
+
+      refreshInFlightRef.current = true;
+      if (!silent && isMountedRef.current) {
+        setIsRefreshingFastboot(true);
+      }
+
+      try {
+        const result = await GetFastbootDevices();
+        if (!isMountedRef.current) {
+          return;
+        }
+        const sanitizedDevices = sanitizeFastbootDevices(result);
+        setFastbootError(null);
+
+        if (sanitizedDevices.length > 0) {
+          emptyPollCountRef.current = 0;
+          applyFastbootDevices(sanitizedDevices);
+        } else {
+          emptyPollCountRef.current += 1;
+          if (
+            fastbootDevicesRef.current.length === 0 ||
+            emptyPollCountRef.current >= 2
+          ) {
+            applyFastbootDevices([]);
+          }
+        }
+      } catch (error) {
+        console.error("Error refreshing fastboot devices:", error);
+        if (isMountedRef.current) {
+          setFastbootError("Failed to refresh fastboot devices.");
+        }
+      } finally {
+        if (isMountedRef.current) {
+          setIsRefreshingFastboot(false);
+        }
+        refreshInFlightRef.current = false;
+
+        if (queuedRefreshRef.current && isMountedRef.current) {
+          queuedRefreshRef.current = false;
+          refreshFastbootDevices({ silent: true });
+        } else {
+          queuedRefreshRef.current = false;
+        }
+      }
+    },
+    [applyFastbootDevices]
+  );
+
+  useEffect(() => {
+    fastbootDevicesRef.current = fastbootDevices;
+  }, [fastbootDevices]);
+
+  useEffect(() => {
+    if (activeView !== 'flasher') {
+      return;
+    }
+
+    emptyPollCountRef.current = 0;
+    refreshFastbootDevices();
+    const interval = window.setInterval(() => {
+      refreshFastbootDevices({ silent: true });
+    }, 4000);
+
+    return () => {
+      window.clearInterval(interval);
+    };
+  }, [activeView, refreshFastbootDevices]);
 
   const handleSelectFile = async () => {
     try {
@@ -118,7 +216,12 @@ export function ViewFlasher({ activeView }: { activeView: string }) {
             <Smartphone />
             Fastboot Devices
           </CardTitle>
-          <Button variant="ghost" size="icon" onClick={refreshFastbootDevices} disabled={isRefreshingFastboot}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => refreshFastbootDevices()}
+            disabled={isRefreshingFastboot}
+          >
             {isRefreshingFastboot ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
@@ -142,6 +245,9 @@ export function ViewFlasher({ activeView }: { activeView: string }) {
                 </div>
               ))}
             </div>
+          )}
+          {fastbootError && (
+            <p className="mt-2 text-sm text-destructive">{fastbootError}</p>
           )}
         </CardContent>
       </Card>
