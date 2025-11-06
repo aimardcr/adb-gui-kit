@@ -251,3 +251,17 @@ func (a *App) PullFile(remotePath string, localPath string) (string, error) {
 	}
 	return output, nil
 }
+
+func (a *App) SideloadPackage(filePath string) (string, error) {
+	filePath = strings.TrimSpace(filePath)
+	if filePath == "" {
+		return "", fmt.Errorf("file path cannot be empty")
+	}
+
+	output, err := a.runCommand("adb", "sideload", filePath)
+	if err != nil {
+		return "", fmt.Errorf("failed to sideload package: %w. Output: %s", err, output)
+	}
+
+	return output, nil
+}

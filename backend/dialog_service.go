@@ -29,6 +29,10 @@ func (a *App) SelectImageFile() (string, error) {
 }
 
 func (a *App) SelectApkFile() (string, error) {
+	if a.ctx == nil {
+		return "", fmt.Errorf("application context not initialised")
+	}
+
 	selectedPath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
 		Title: "Select APK File",
 		Filters: []runtime.FileFilter{
@@ -41,6 +45,27 @@ func (a *App) SelectApkFile() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	return selectedPath, nil
+}
+
+func (a *App) SelectZipFile() (string, error) {
+	if a.ctx == nil {
+		return "", fmt.Errorf("application context not initialised")
+	}
+
+	selectedPath, err := runtime.OpenFileDialog(a.ctx, runtime.OpenDialogOptions{
+		Title: "Select Update Package",
+		Filters: []runtime.FileFilter{
+			{
+				DisplayName: "ZIP Archives (*.zip)",
+				Pattern:     "*.zip",
+			},
+		},
+	})
+	if err != nil {
+		return "", err
+	}
+
 	return selectedPath, nil
 }
 

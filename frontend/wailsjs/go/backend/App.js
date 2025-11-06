@@ -70,6 +70,14 @@ export function SelectSaveDirectory(arg1) {
   return window['go']['backend']['App']['SelectSaveDirectory'](arg1);
 }
 
+export function SelectZipFile() {
+  return window['go']['backend']['App']['SelectZipFile']();
+}
+
+export function SideloadPackage(arg1) {
+  return window['go']['backend']['App']['SideloadPackage'](arg1);
+}
+
 export function UninstallPackage(arg1) {
   return window['go']['backend']['App']['UninstallPackage'](arg1);
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react'; 
-import { WipeData, FlashPartition, SelectImageFile, GetFastbootDevices } from '../../../wailsjs/go/backend/App';
+import { WipeData, FlashPartition, SelectImageFile, GetFastbootDevices, SelectZipFile, SideloadPackage } from '../../../wailsjs/go/backend/App';
 import { backend } from '../../../wailsjs/go/models';
 
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger 
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Loader2, AlertTriangle, FileUp, Trash2, Smartphone, RefreshCw } from "lucide-react";
+import { Loader2, AlertTriangle, FileUp, Trash2, Smartphone, RefreshCw, Package } from "lucide-react";
 
 type Device = backend.Device;
 
@@ -51,8 +51,10 @@ const areDeviceListsEqual = (a: Device[], b: Device[]): boolean => {
 export function ViewFlasher({ activeView }: { activeView: string }) {
   const [partition, setPartition] = useState('');
   const [filePath, setFilePath] = useState('');
+  const [sideloadFilePath, setSideloadFilePath] = useState('');
   const [isFlashing, setIsFlashing] = useState(false);
   const [isWiping, setIsWiping] = useState(false);
+  const [isSideloading, setIsSideloading] = useState(false);
 
   const [fastbootDevices, setFastbootDevices] = useState<Device[]>([]);
   const [isRefreshingFastboot, setIsRefreshingFastboot] = useState(false);
@@ -168,6 +170,20 @@ export function ViewFlasher({ activeView }: { activeView: string }) {
     }
   };
 
+  const handleSelectSideloadFile = async () => {
+    try {
+      const selectedPath = await SelectZipFile();
+
+      if (selectedPath) {
+        setSideloadFilePath(selectedPath);
+        toast.info(`ZIP selected: ${selectedPath.split(/[/\\]/).pop()}`);
+      }
+    } catch (error) {
+      console.error("ZIP selection error:", error);
+      toast.error("Failed to open file dialog", { description: String(error) });
+    }
+  };
+
   const handleFlash = async () => {
     if (!partition) {
       toast.error("Partition name cannot be empty.");
@@ -189,6 +205,28 @@ export function ViewFlasher({ activeView }: { activeView: string }) {
       toast.error("Flash Failed", { description: String(error), id: toastId });
     } finally {
       setIsFlashing(false);
+    }
+  };
+
+  const handleSideload = async () => {
+    if (!sideloadFilePath) {
+      toast.error("No update package selected.");
+      return;
+    }
+
+    const fileName = sideloadFilePath.split(/[/\\]/).pop() ?? "update.zip";
+    setIsSideloading(true);
+    const toastId = toast.loading(`Sideloading ${fileName}...`);
+
+    try {
+      const output = await SideloadPackage(sideloadFilePath);
+      const description = output ? output : `${fileName} sideloaded successfully.`;
+      toast.success("Sideload Complete", { description, id: toastId });
+    } catch (error) {
+      console.error("Sideload error:", error);
+      toast.error("Sideload Failed", { description: String(error), id: toastId });
+    } finally {
+      setIsSideloading(false);
     }
   };
 
@@ -303,6 +341,54 @@ export function ViewFlasher({ activeView }: { activeView: string }) {
               <FileUp className="mr-2 h-4 w-4" />
             )}
             Flash Partition
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Package />
+            Recovery Sideload
+          </CardTitle>
+          <CardDescription>
+            Send a flashable ZIP via adb sideload while your device is in recovery.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Flashable ZIP (.zip)</label>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                className="flex-1"
+                onClick={handleSelectSideloadFile}
+                disabled={isSideloading}
+              >
+                Select ZIP
+              </Button>
+            </div>
+            <p className="text-sm text-muted-foreground truncate">
+              {sideloadFilePath ? sideloadFilePath : "No ZIP selected."}
+            </p>
+          </div>
+
+          <p className="text-sm text-muted-foreground">
+            Ensure the device shows &quot;sideload&quot; mode in recovery before starting.
+          </p>
+
+          <Button 
+            variant="default"
+            className="w-full"
+            disabled={isSideloading || !sideloadFilePath}
+            onClick={handleSideload}
+          >
+            {isSideloading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <Package className="mr-2 h-4 w-4" />
+            )}
+            Sideload Package
           </Button>
         </CardContent>
       </Card>

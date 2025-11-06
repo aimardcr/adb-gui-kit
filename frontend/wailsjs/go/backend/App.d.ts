@@ -36,6 +36,10 @@ export function SelectImageFile():Promise<string>;
 
 export function SelectSaveDirectory(arg1:string):Promise<string>;
 
+export function SelectZipFile():Promise<string>;
+
+export function SideloadPackage(arg1:string):Promise<string>;
+
 export function UninstallPackage(arg1:string):Promise<string>;
 
 export function WipeData():Promise<void>;
