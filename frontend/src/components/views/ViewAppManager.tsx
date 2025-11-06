@@ -2,7 +2,18 @@ import React, { useState } from 'react';
 
 import { SelectApkFile, InstallPackage, UninstallPackage } from '../../../wailsjs/go/backend/App';
 
-import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -151,19 +162,44 @@ export function ViewAppManager({ activeView }: { activeView: string }) {
               disabled={isUninstalling}
             />
           </div>
-          <Button 
-            variant="destructive"
-            className="w-full"
-            disabled={isUninstalling || !packageName}
-            onClick={handleUninstall}
-          >
-            {isUninstalling ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Trash2 className="mr-2 h-4 w-4" />
-            )}
-            Uninstall
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="destructive"
+                className="w-full"
+                disabled={isUninstalling || !packageName} 
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Uninstall
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Anda akan menghapus paket:{" "}
+                  <span className="font-semibold text-foreground">{packageName}</span>.
+                  <br />
+                  Tindakan ini tidak dapat dibatalkan.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction
+                  className={buttonVariants({ variant: "destructive" })}
+                  onClick={handleUninstall}
+                  disabled={isUninstalling}
+                >
+                  {isUninstalling ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="mr-2 h-4 w-4" />
+                  )}
+                  Ya, Uninstall
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </CardContent>
       </Card>
 

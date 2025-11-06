@@ -133,7 +133,6 @@ export function ViewFlasher({ activeView }: { activeView: string }) {
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              {/* PERBAIKAN: Menggunakan properti Uppercase */}
               {fastbootDevices.map((device) => (
                 <div key={device.Serial} className="flex items-center justify-between p-3 bg-muted rounded-lg">
                   <span className="font-mono">{device.Serial}</span>
