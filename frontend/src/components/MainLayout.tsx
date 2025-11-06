@@ -77,11 +77,13 @@ export function MainLayout() {
           <div className="flex h-full flex-col p-4">
 
             <div className="mb-6 flex items-center px-2 h-10">
-              <Terminal 
+              <img
+                src="/logo.png"
+                alt="ADB Kit logo"
                 className={cn(
-                  "h-6 w-6 text-primary transition-transform duration-300 ease-in-out",
-                  isCollapsed && "rotate-180" 
-                )} 
+                  "h-8 w-8 object-contain transition-all duration-300 ease-in-out",
+                  isCollapsed && "mx-auto"
+                )}
               />
               <h2 
                 className={cn(
