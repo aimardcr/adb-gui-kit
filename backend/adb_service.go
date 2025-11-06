@@ -6,6 +6,14 @@ import (
 	"strings"
 )
 
+type DeviceMode string
+
+const (
+	DeviceModeUnknown  DeviceMode = "unknown"
+	DeviceModeADB      DeviceMode = "adb"
+	DeviceModeFastboot DeviceMode = "fastboot"
+)
+
 func (a *App) GetDevices() ([]Device, error) {
 	output, err := a.runCommand("adb", "devices")
 	if err != nil {
@@ -61,14 +69,65 @@ func (a *App) GetDeviceInfo() (DeviceInfo, error) {
 	return info, nil
 }
 
-func (a *App) Reboot(mode string) error {
-	_, err := a.runCommand("adb", "reboot", mode)
-
-	if err != nil {
-		return err
+func (a *App) detectDeviceMode() (DeviceMode, error) {
+	adbDevices, adbErr := a.GetDevices()
+	if adbErr == nil {
+		for _, device := range adbDevices {
+			status := strings.ToLower(strings.TrimSpace(device.Status))
+			switch status {
+			case "device", "recovery", "sideload":
+				return DeviceModeADB, nil
+			}
+		}
 	}
 
-	return nil
+	fastbootDevices, fastbootErr := a.GetFastbootDevices()
+	if fastbootErr == nil && len(fastbootDevices) > 0 {
+		return DeviceModeFastboot, nil
+	}
+
+	if adbErr != nil && fastbootErr != nil {
+		return DeviceModeUnknown, fmt.Errorf("failed to detect device mode: adb error: %w, fastboot error: %v", adbErr, fastbootErr)
+	}
+
+	return DeviceModeUnknown, nil
+}
+
+func (a *App) GetDeviceMode() (string, error) {
+	mode, err := a.detectDeviceMode()
+	return string(mode), err
+}
+
+func (a *App) Reboot(mode string) error {
+	connectionMode, detectionErr := a.detectDeviceMode()
+	if detectionErr != nil {
+		return detectionErr
+	}
+
+	mode = strings.TrimSpace(mode)
+
+	switch connectionMode {
+	case DeviceModeADB:
+		args := []string{"reboot"}
+		if mode != "" {
+			args = append(args, mode)
+		}
+		_, err := a.runCommand("adb", args...)
+		return err
+	case DeviceModeFastboot:
+		if mode == "bootloader" {
+			_, err := a.runCommand("fastboot", "reboot-bootloader")
+			return err
+		}
+		args := []string{"reboot"}
+		if mode != "" {
+			args = append(args, mode)
+		}
+		_, err := a.runCommand("fastboot", args...)
+		return err
+	default:
+		return fmt.Errorf("no connected device detected in adb or fastboot mode")
+	}
 }
 
 func (a *App) InstallPackage(filePath string) (string, error) {

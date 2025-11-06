@@ -6,6 +6,8 @@ export function FlashPartition(arg1:string,arg2:string):Promise<void>;
 
 export function GetDeviceInfo():Promise<backend.DeviceInfo>;
 
+export function GetDeviceMode():Promise<string>;
+
 export function GetDevices():Promise<Array<backend.Device>>;
 
 export function GetFastbootDevices():Promise<Array<backend.Device>>;

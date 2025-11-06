@@ -10,6 +10,10 @@ export function GetDeviceInfo() {
   return window['go']['backend']['App']['GetDeviceInfo']();
 }
 
+export function GetDeviceMode() {
+  return window['go']['backend']['App']['GetDeviceMode']();
+}
+
 export function GetDevices() {
   return window['go']['backend']['App']['GetDevices']();
 }
