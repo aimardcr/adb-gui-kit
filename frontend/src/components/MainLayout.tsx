@@ -31,6 +31,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeToggle } from "./ThemeToggle";
 import { ThemeProvider } from "./ThemeProvider";
 import { WelcomeScreen } from "./WelcomeScreen";
+import { ViewShell } from './views/ViewShell';
 
 const VIEWS = {
   DASHBOARD: "dashboard",
@@ -38,6 +39,7 @@ const VIEWS = {
   FILES: "files",
   FLASHER: "flasher",
   UTILS: "utils",
+  SHELL: 'shell',
 } as const;
 
 type ViewType = (typeof VIEWS)[keyof typeof VIEWS];
@@ -76,6 +78,8 @@ export function MainLayout() {
         return <ViewFlasher activeView={activeView} />;
       case VIEWS.UTILS:
         return <ViewUtilities activeView={activeView} />;
+      case VIEWS.SHELL:
+        return <ViewShell activeView={activeView} />; 
       default:
         return <ViewDashboard activeView={activeView} />;
     }
@@ -251,6 +255,21 @@ export function MainLayout() {
                   </TooltipTrigger>
                   <TooltipContent side="right">Utility</TooltipContent>
                 </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button 
+                      variant={activeView === VIEWS.SHELL ? "default" : "ghost"}
+                      className={cn("justify-start text-base", isCollapsed && "justify-center")}
+                      onClick={() => setActiveView(VIEWS.SHELL)}
+                    >
+                      <Terminal className="mr-2 h-4 w-4" />
+                      <span className={cn(isCollapsed && "hidden")}>Shell</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Shell</TooltipContent>
+                </Tooltip>
+                
               </nav>
             </div>
 
