@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 
-import { GetDevices, GetDeviceInfo, EnableWirelessAdb, ConnectWirelessAdb } from '../../../wailsjs/go/backend/App';
+import { GetDevices, GetDeviceInfo, EnableWirelessAdb, ConnectWirelessAdb, DisconnectWirelessAdb } from '../../../wailsjs/go/backend/App';
 import { backend } from '../../../wailsjs/go/models';
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Smartphone, Battery, Info, Server, RefreshCw, Loader2, Hash, Wifi, ShieldCheck, Cpu, Database, Code, Building, Usb } from "lucide-react";
+import { Smartphone, Battery, Info, Server, RefreshCw, Loader2, Hash, Wifi, ShieldCheck, Cpu, Database, Code, Building, Usb, PlugZap   } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Device = backend.Device;
@@ -21,6 +21,7 @@ export function ViewDashboard({ activeView }: { activeView: string }) {
   const [wirelessPort, setWirelessPort] = useState('5555');
   const [isEnablingTcpip, setIsEnablingTcpip] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [isDisconnecting, setIsDisconnecting] = useState(false);
 
   const refreshDevices = async () => {
     setIsRefreshingDevices(true);
@@ -107,6 +108,24 @@ export function ViewDashboard({ activeView }: { activeView: string }) {
     setIsConnecting(false);
   };
 
+  const handleDisconnect = async () => {
+    if (!wirelessIp) {
+      toast.error("IP Address cannot be empty");
+      return;
+    }
+    setIsDisconnecting(true);
+    const toastId = toast.loading(`Disconnecting from ${wirelessIp}:${wirelessPort}...`);
+    try {
+      const output = await DisconnectWirelessAdb(wirelessIp, wirelessPort);
+      toast.success("Disconnected", { id: toastId, description: output });
+      
+      refreshDevices(); 
+    } catch (error) {
+      toast.error("Disconnect failed", { id: toastId, description: String(error) });
+    }
+    setIsDisconnecting(false);
+  };
+
   return (
     <div className="flex flex-col gap-6">
       
@@ -186,29 +205,42 @@ export function ViewDashboard({ activeView }: { activeView: string }) {
                 placeholder="Device IP Address" 
                 value={wirelessIp}
                 onChange={(e) => setWirelessIp(e.target.value)}
-                disabled={isConnecting}
+                disabled={isConnecting || isDisconnecting}
                 className="flex-1"
               />
               <Input 
                 placeholder="Port" 
                 value={wirelessPort}
                 onChange={(e) => setWirelessPort(e.target.value)}
-                disabled={isConnecting}
+                disabled={isConnecting || isDisconnecting}
                 className="w-24"
               />
             </div>
-            <Button 
-              className="w-full"
-              onClick={handleConnect}
-              disabled={isConnecting || !wirelessIp}
-            >
-              {isConnecting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Wifi className="mr-2 h-4 w-4" />
-              )}
-              Connect
-            </Button>
+            <div className="grid grid-cols-2 gap-2">
+              <Button 
+                onClick={handleConnect}
+                disabled={isConnecting || !wirelessIp || isDisconnecting}
+              >
+                {isConnecting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Wifi className="mr-2 h-4 w-4" />
+                )}
+                Connect
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={handleDisconnect}
+                disabled={isDisconnecting || !wirelessIp || isConnecting}
+              >
+                {isDisconnecting ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <PlugZap className="mr-2 h-4 w-4" />
+                )}
+                Disconnect
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

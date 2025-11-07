@@ -4,6 +4,8 @@ import {backend} from '../models';
 
 export function ConnectWirelessAdb(arg1:string,arg2:string):Promise<string>;
 
+export function DisconnectWirelessAdb(arg1:string,arg2:string):Promise<string>;
+
 export function EnableWirelessAdb(arg1:string):Promise<string>;
 
 export function FlashPartition(arg1:string,arg2:string):Promise<void>;

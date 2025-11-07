@@ -388,3 +388,29 @@ func (a *App) ConnectWirelessAdb(ipAddress string, port string) (string, error) 
 	
 	return "", fmt.Errorf(cleanOutput)
 }
+
+func (a *App) DisconnectWirelessAdb(ipAddress string, port string) (string, error) {
+	if ipAddress == "" {
+		return "", fmt.Errorf("IP address cannot be empty")
+	}
+	if port == "" {
+		port = "5555"
+	}
+	
+	address := fmt.Sprintf("%s:%s", ipAddress, port)
+	
+	output, err := a.runCommand("adb", "disconnect", address)
+	if err != nil {
+		output, err = a.runCommand("adb", "disconnect", ipAddress)
+		if err != nil {
+			return "", fmt.Errorf("failed to disconnect: %w. Output: %s", err, output)
+		}
+	}
+
+	cleanOutput := strings.TrimSpace(output)
+	if cleanOutput == "" {
+		return fmt.Sprintf("Disconnected from %s", address), nil
+	}
+	
+	return cleanOutput, nil
+}
