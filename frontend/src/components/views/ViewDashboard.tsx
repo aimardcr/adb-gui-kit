@@ -6,8 +6,22 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Smartphone, Battery, Info, Server, RefreshCw, Loader2, Hash, Wifi, ShieldCheck, Cpu, Database, Code, Building, Usb, PlugZap   } from "lucide-react";
+import { Smartphone, Battery, Info, Server, RefreshCw, Loader2, Hash, Wifi, ShieldCheck, Cpu, Database, Code, Building, Usb, PlugZap, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getNickname, setNickname } from '@/lib/nicknameStore';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+
 
 type Device = backend.Device;
 type DeviceInfo = backend.DeviceInfo;
@@ -22,6 +36,10 @@ export function ViewDashboard({ activeView }: { activeView: string }) {
   const [isEnablingTcpip, setIsEnablingTcpip] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnecting, setIsDisconnecting] = useState(false);
+  const [nicknameVersion, setNicknameVersion] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentDevice, setCurrentDevice] = useState<Device | null>(null);
+  const [newNickname, setNewNickname] = useState("");
 
   const refreshDevices = async () => {
     setIsRefreshingDevices(true);
@@ -126,6 +144,27 @@ export function ViewDashboard({ activeView }: { activeView: string }) {
     setIsDisconnecting(false);
   };
 
+  const openEditDialog = (device: Device) => {
+    setCurrentDevice(device);
+    setNewNickname(getNickname(device.Serial) || "");
+    setIsEditing(true);
+  };
+
+  const closeEditDialog = () => {
+    setIsEditing(false);
+    setCurrentDevice(null);
+    setNewNickname("");
+  };
+
+  const handleSaveNickname = () => {
+    if (currentDevice) {
+      setNickname(currentDevice.Serial, newNickname);
+      setNicknameVersion(v => v + 1);
+      toast.success(`Nama panggilan disimpan untuk ${currentDevice.Serial}`);
+    }
+    closeEditDialog();
+  };
+
   return (
     <div className="flex flex-col gap-6">
       
@@ -150,18 +189,38 @@ export function ViewDashboard({ activeView }: { activeView: string }) {
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              {devices.map((device) => (
-                <div key={device.Serial} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                  <span className="font-mono">{device.Serial}</span>
-                  <span 
-                    className={`font-semibold ${
-                      device.Status === 'device' ? 'text-green-500' : 'text-yellow-500'
-                    }`}
-                  >
-                    {device.Status}
-                  </span>
-                </div>
-              ))}
+              {devices.map((device) => {
+                const displayName = getNickname(device.Serial) || device.Serial;
+                
+                return (
+                  <div key={device.Serial} className="flex items-center justify-between p-3 bg-muted rounded-lg group">
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-lg">{displayName}</span>
+                      {displayName !== device.Serial && (
+                        <span className="font-mono text-xs text-muted-foreground">{device.Serial}</span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <span 
+                        className={`font-semibold ${
+                          device.Status === 'device' ? 'text-green-500' : 'text-yellow-500'
+                        }`}
+                      >
+                        {device.Status}
+                      </span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={() => openEditDialog(device)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>
@@ -288,6 +347,36 @@ export function ViewDashboard({ activeView }: { activeView: string }) {
           )}
         </CardContent>
       </Card>
+
+      <AlertDialog open={isEditing} onOpenChange={setIsEditing}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Edit Nickname</AlertDialogTitle>
+            <AlertDialogDescription>
+              Give a nickname to the device:
+              <span className="block font-mono text-foreground mt-2">{currentDevice?.Serial}</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          
+          <div className="py-4">
+            <Label htmlFor="nickname" className="text-left">
+              Nickname
+            </Label>
+            <Input
+              id="nickname"
+              value={newNickname}
+              onChange={(e) => setNewNickname(e.target.value)}
+              placeholder="Ex: My Device"
+              className="mt-2"
+            />
+          </div>
+
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={closeEditDialog}>Batal</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSaveNickname}>Simpan</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
