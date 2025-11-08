@@ -8,7 +8,6 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"syscall"
 )
 
 func (a *App) getBinaryPath(name string) (string, error) {
@@ -45,9 +44,7 @@ func (a *App) runCommand(name string, args ...string) (string, error) {
 
 	cmd := exec.Command(binaryPath, args...)
 
-	if runtime.GOOS == "windows" {
-		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	}
+	setCommandWindowMode(cmd)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -70,9 +67,7 @@ func (a *App) runShellCommand(shellCommand string) (string, error) {
 
 	cmd := exec.Command(binaryPath, "shell", shellCommand)
 
-	if runtime.GOOS == "windows" {
-		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	}
+	setCommandWindowMode(cmd)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
