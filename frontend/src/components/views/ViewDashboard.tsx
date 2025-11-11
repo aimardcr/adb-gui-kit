@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Smartphone, Battery, Info, Server, RefreshCw, Loader2, Hash, Wifi, ShieldCheck, Cpu, Database, Code, Building, Usb, PlugZap, Pencil } from "lucide-react";
+import { Smartphone, Battery, Info, Server, RefreshCw, Loader2, Hash, Wifi, ShieldCheck, Cpu, Database, Code, Building, Usb, PlugZap, Tag, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getNickname, setNickname } from '@/lib/nicknameStore';
 import {
@@ -332,8 +332,10 @@ export function ViewDashboard({ activeView }: { activeView: string }) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
               <InfoItem icon={<Building size={18} />} label="Brand" value={deviceInfo.Brand} />
+              <InfoItem icon={<Tag size={18} />} label="Device Name" value={deviceInfo.DeviceName} />
               <InfoItem icon={<Code size={18} />} label="Codename" value={deviceInfo.Codename} />
               <InfoItem icon={<Smartphone size={18} />} label="Model" value={deviceInfo.Model} />
+              <InfoItem icon={<Hash size={18} />} label="Serial Number" value={deviceInfo.Serial} />
               <InfoItem icon={<Server size={18} />} label="Build Number" value={deviceInfo.BuildNumber} />
               <InfoItem icon={<Info size={18} />} label="Android Version" value={deviceInfo.AndroidVersion} />
               <InfoItem icon={<Battery size={18} />} label="Battery" value={deviceInfo.BatteryLevel} />

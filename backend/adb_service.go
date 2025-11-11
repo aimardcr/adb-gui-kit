@@ -137,6 +137,13 @@ func (a *App) GetDeviceInfo() (DeviceInfo, error) {
 	info.RamTotal = a.getRamTotal()
 	info.StorageInfo = a.getStorageInfo()
 	info.Brand = a.getProp("ro.product.brand")
+	info.DeviceName = a.getProp("ro.product.name")
+
+	if serial, err := a.runCommand("adb", "get-serialno"); err == nil {
+		info.Serial = strings.TrimSpace(serial)
+	} else {
+		info.Serial = strings.TrimSpace(a.getProp("ro.serialno"))
+	}
 
 	batteryOutput, err := a.runShellCommand("dumpsys battery | grep level")
 	if err != nil {
