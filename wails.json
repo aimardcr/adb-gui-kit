@@ -1,7 +1,7 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "ADB-Kit",
-  "outputfilename": "ADB-Kit",
+  "name": "ADBKit",
+  "outputfilename": "ADBKit",
   "frontend:install": "pnpm install",
   "frontend:build": "pnpm build",
   "frontend:dev:watcher": "pnpm dev",
@@ -13,8 +13,9 @@
   },
   "info": {
     "companyName": "Drenzzz",
-    "productName": "ADB GUI Kit",
-    "productVersion": "1.0",
+    "productName": "ADBKit",
+    "productVersion": "1.1.0",
+    "fileVersion": "1.1.0",
     "copyright": "Copyright (c) 2025 Drenzzz",
     "comments": ""
   }

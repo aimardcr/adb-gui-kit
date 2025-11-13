@@ -88,6 +88,9 @@ Section
 
     !insertmacro wails.files
 
+    SetOutPath $INSTDIR
+    File /r "..\..\bin\"
+
     CreateShortcut "$SMPROGRAMS\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
     CreateShortCut "$DESKTOP\${INFO_PRODUCTNAME}.lnk" "$INSTDIR\${PRODUCT_EXECUTABLE}"
 
