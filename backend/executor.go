@@ -8,33 +8,46 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"syscall"
 )
 
 func (a *App) getBinaryPath(name string) (string, error) {
-	devPath := filepath.Join(".", "bin", name)
+	platformDir := runtime.GOOS
+	extension := ""
 	if runtime.GOOS == "windows" {
-		devPath += ".exe"
+		extension = ".exe"
 	}
 
-	if _, err := os.Stat(devPath); err == nil {
-		return filepath.Abs(devPath)
+	candidates := []string{
+		filepath.Join(".", "bin", platformDir, name+extension),
 	}
 
 	exePath, err := os.Executable()
 	if err != nil {
 		return "", err
 	}
-	prodPath := filepath.Join(filepath.Dir(exePath), "bin", name)
-	if runtime.GOOS == "windows" {
-		prodPath += ".exe"
+	installDir := filepath.Dir(exePath)
+	candidates = append(candidates, filepath.Join(installDir, "bin", platformDir, name+extension))
+
+	// Legacy fallback: allow flat bin layout so older installs still run.
+	candidates = append(candidates,
+		filepath.Join(".", "bin", name+extension),
+		filepath.Join(installDir, "bin", name+extension),
+	)
+
+	for _, candidate := range candidates {
+		if candidate == "" {
+			continue
+		}
+
+		if info, err := os.Stat(candidate); err == nil && !info.IsDir() {
+			if filepath.IsAbs(candidate) {
+				return candidate, nil
+			}
+			return filepath.Abs(candidate)
+		}
 	}
-	
-	if _, err := os.Stat(prodPath); err == nil {
-		return prodPath, nil
-	}
-	
-	return "", fmt.Errorf("binary '%s' not found in dev path '%s' or prod path '%s'", name, devPath, prodPath)
+
+	return "", fmt.Errorf("binary '%s' not found for platform '%s'", name, platformDir)
 }
 
 func (a *App) runCommand(name string, args ...string) (string, error) {
@@ -45,9 +58,7 @@ func (a *App) runCommand(name string, args ...string) (string, error) {
 
 	cmd := exec.Command(binaryPath, args...)
 
-	if runtime.GOOS == "windows" {
-		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	}
+	setCommandWindowMode(cmd)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer
@@ -70,9 +81,7 @@ func (a *App) runShellCommand(shellCommand string) (string, error) {
 
 	cmd := exec.Command(binaryPath, "shell", shellCommand)
 
-	if runtime.GOOS == "windows" {
-		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-	}
+	setCommandWindowMode(cmd)
 
 	var out bytes.Buffer
 	var stderr bytes.Buffer

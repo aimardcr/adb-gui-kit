@@ -203,14 +203,6 @@ export function ViewUtilities({ activeView }: { activeView: string }) {
         </CardContent>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Future Utilities</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">Coming Soon.</p>
-        </CardContent>
-      </Card>
     </div>
   );
 }

@@ -39,7 +39,7 @@ Built with Wails (Go + React) for a fast, lightweight.
 1.  Go to the **[Releases](https://github.com/drenzzz/adb-gui-kit/releases)** page.
 2.  Download the `.zip` (Windows) file.
 3.  Unzip the file.
-4.  **IMPORTANT:** Make sure the `ADB-Kit` executable is in the same folder as the `bin/` directory (which contains `adb` and `fastboot` file).
+4.  **IMPORTANT:** Keep the `ADB-Kit` executable in the same folder as `bin/windows/` (on Windows) or `bin/linux/` (on Linux) so the bundled platform tools (`adb`, `fastboot`, etc.) can be found.
 5.  Run the application.
 
 ---
